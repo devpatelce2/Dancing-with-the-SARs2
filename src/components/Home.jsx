@@ -1,7 +1,7 @@
+import { DATA_BASE } from '../lib/baseUrl.js'
 import React, { useEffect, useRef, useState } from 'react'
 import { StellarisMark } from '../ui/TeamLogo.jsx'
 import { CASE_STUDIES } from '../content/stories.js'
-import { DATA_BASE } from '../lib/dataBase.js'
 
 // Landing page. Everything here is either navigation, a description of what the app does, or a fact already
 // shown (with its source) inside the matching story. Whether a case study has processed radar data is read
@@ -40,8 +40,8 @@ export default function Home({ onEnter }) {
         <button className="hm-cta small" onClick={() => onEnter()}>Open the map</button>
       </nav>
 
-      <header className="hm-hero-wrap">
-       <div className="hm-hero">
+      <div className="hm-hero-wrap">
+      <header className="hm-hero">
         <div className="hm-hero-text">
           <p className="hm-eyebrow">NASA Space Apps Challenge 2026</p>
           <h1>Watch the Earth change, <em>through radar eyes.</em></h1>
@@ -49,8 +49,9 @@ export default function Home({ onEnter }) {
           <div className="hm-actions"><button className="hm-cta" onClick={() => onEnter()}>Open the map <span aria-hidden="true">→</span></button><button className="hm-ghost" onClick={() => go('#hm-cases')}>See the case studies</button></div>
           <ul className="hm-strip" aria-label="At a glance"><li><b>4</b><span>case studies</span></li><li><b>2</b><span>radar missions</span></li><li><b>12 days</b><span>NISAR repeat</span></li><li><b>2D + 3D</b><span>map and globe</span></li></ul>
         </div>
-       </div>
       </header>
+        <p className="hm-credit">Illustrative landscape, AI-generated image. Not live data and not a radar image.</p>
+      </div>
 
       <section className="hm-sec hm-rv" aria-labelledby="hm-obj-h">
         <h2 id="hm-obj-h">What this project does</h2>

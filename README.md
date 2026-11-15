@@ -105,3 +105,22 @@ Things to know:
 2. `python -m pipeline.verify_live --write docs/LIVE_CHECK.md` and read every FAIL line.
 3. `npx vercel --prod` (the `api/` folder holds the ASF proxy function). Open the printed URL.
 4. On the live URL check: the map loads with satellite imagery; the site list shows every site; Time series, Compare dates and Story open; the 3D button works; ticking Earthquakes loads events; "Search live acquisitions" returns footprints.
+
+## Deploying the catalogue proxy (Sentinel-1 and NISAR search)
+
+Locally, `npm run dev` proxies `/api/asf` to ASF DAAC. **GitHub Pages is static hosting: it has no `/api` route, so the search returns 404 there.** The app now tries, in order: `VITE_ASF_BASE`, same-origin `/api/asf`, then ASF directly (works only if ASF allows your origin via CORS). If none answers, the panel says so with the attempts it made.
+
+- **Vercel:** deploy the repo as is. `api/asf.js` plus `vercel.json` provide `/api/asf/*` with CORS headers.
+- **Cloudflare Worker:** paste `deploy/cloudflare-worker.js` into a Worker, then set `VITE_ASF_BASE=https://<your-worker>.workers.dev`.
+- **GitHub Pages:** `.github/workflows/pages.yml` builds with the right sub-path. Add the repository variable `ASF_PROXY_URL` (Settings > Variables) pointing to your Vercel or Worker proxy.
+- Check it: open `<proxy>/health` in a browser. If still failing, send the failing request URL and status from F12 > Network.
+
+The proxy was tested here with mock responses only; this build environment cannot reach ASF.
+
+## Radar image attribution
+Every radar layer on the map has a "Radar image" card (bottom-left, top on phones) listing: what it shows, satellite and band, product and polarisation, acquisition time (UTC), track/frame/cycle, scene ID, processing settings, footprint, data credit and status (candidate, synthetic, or validated).
+
+## Validating a flood case study
+1. `python -m pipeline.find_reference --site-dir public/data/sylhet --sar-date 2026-07-14` lists independent OPERA DSWx water maps from NASA CMR (use `--product hls` for optical).
+2. Download one with your Earthdata token, then run `python -m pipeline.validate ...` as printed.
+3. Precision, recall, F1 and IoU then appear in the panel. Until you do this, the site says "not validated"; no score is invented. DSWx-S1 is radar too, so it is independent of our pipeline but not optical ground truth.

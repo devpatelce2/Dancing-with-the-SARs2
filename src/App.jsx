@@ -17,6 +17,8 @@ import TimeSeriesPanel from './components/TimeSeriesPanel.jsx';
 import { fetchAcquisitions } from './data/asf.js';
 import { fetchHazards, HAZARD_SOURCES } from './data/hazards.js';
 import { createAcquisitionLayer, renderRecords, viewBoxDegrees, findHoveredAcquisitions } from './data/acquisitionLayer.js';
+import { inWindow, spanCovers, windowSignature } from './data/acquisitionWindow.js';
+import ImageInfo from './ui/ImageInfo.jsx';
 
 export default function App() {
   const platform = useMemo(createPlatform, []);
@@ -29,6 +31,15 @@ export default function App() {
   const [acqDisplayMode, setAcqDisplayMode] = useState('footprints');
   const acqDisplayModeRef = useRef('footprints');
   const acquisitionRecordsRef = useRef({ 'SENTINEL-1': [], NISAR: [] });
+  // Records are loaded for a span of time and drawn for the timeline window inside it, so the map always matches the selected date.
+  const fetchedRef = useRef({});               // dataset -> { records, truncated, sig }
+  const acqSpanRef = useRef(null);             // { start, end, context } of the last successful timeline-driven load
+  const acqContextRef = useRef('');
+  const windowModeRef = useRef(false);         // true when the full timeline range hit the result cap, so we load per window
+  const pinnedRef = useRef(false);             // true after a manual search: draw the form's date range as searched
+  const lastPaintRef = useRef(0);
+  const [radarImages, setRadarImages] = useState([]);
+  const [acqVisible, setAcqVisible] = useState({ shown: 0, loaded: 0, pinned: false });
   const [stepKey, setStepKey] = useState('1 day'); const [speedKey, setSpeedKey] = useState('1 day/s');
   const [full, setFull] = useState(false);
   const [mode3d, setMode3d] = useState(false);
@@ -151,11 +162,19 @@ export default function App() {
     const selected = Object.keys(form.datasets).filter((key) => form.datasets[key]);
     if (!selected.length) return;
 
-    const start = Number.isFinite(options.startMs) ? new Date(options.startMs).toISOString() : `${form.start}T00:00:00Z`;
-    const end = Number.isFinite(options.endMs) ? new Date(options.endMs).toISOString() : `${form.end}T23:59:59Z`;
+    const timeline = platform.timeline;
+    const tState = timeline.getState();
     const bbox = form.extent === 'view' ? viewBoxDegrees(eng()?.viewer) : null;
     const bboxKey = bbox ? Object.values(bbox).map(v => v.toFixed(2)).join(',') : 'global';
-    const searchKey = `${selected.join(',')}|${start}|${end}|${bboxKey}|${selected.map(k => form.levels[k]).join(',')}`;
+    const context = `${selected.join(',')}|${bboxKey}|${selected.map(k => form.levels[k]).join(',')}`;
+    if (context !== acqContextRef.current) { acqContextRef.current = context; windowModeRef.current = false; }
+    // Timeline-driven: load the whole timeline range once and let the window pick scenes locally.
+    // Manual: load exactly the dates in the search form and draw them all.
+    const wantSpan = options.auto
+      ? (windowModeRef.current ? timeline.getWindow() : { start: tState.start, end: tState.end })
+      : { start: Date.parse(`${form.start}T00:00:00Z`), end: Date.parse(`${form.end}T23:59:59Z`) };
+    pinnedRef.current = !options.auto;
+    const searchKey = `${context}|${wantSpan.start}|${wantSpan.end}`;
     if (options.auto && searchKey === lastTimelineSearchRef.current) return;
     if (options.auto) lastTimelineSearchRef.current = searchKey;
 
@@ -164,10 +183,17 @@ export default function App() {
     setAcqStatus({ loading: true, error: null, messages: [{ text: options.auto ? 'Timeline changed · searching ASF acquisitions…' : 'Searching ASF acquisitions…' }], retrievedAt: null });
 
     try {
-      const results = await Promise.allSettled(selected.map((dataset) => fetchAcquisitions({
-        dataset, start, end, bbox, processingLevel: form.levels[dataset], maxResults: form.maxResults,
+      const run = (span) => Promise.allSettled(selected.map((dataset) => fetchAcquisitions({
+        dataset, start: new Date(span.start).toISOString(), end: new Date(span.end).toISOString(), bbox, processingLevel: form.levels[dataset], maxResults: form.maxResults,
       }, { signal: controller.signal })));
+      let span = wantSpan;
+      let results = await run(span);
+      if (options.auto && !windowModeRef.current && results.some((r) => r.status === 'fulfilled' && r.value.truncated)) {
+        // The whole range holds more scenes than the result cap, so loading it would silently drop some.
+        windowModeRef.current = true; span = timeline.getWindow(); results = await run(span);
+      }
       if (controller.signal.aborted) return;
+      acqSpanRef.current = options.auto ? { ...span, context } : null;
       const messages = [];
       let retrievedAt = null;
       let totalRecords = 0;
@@ -176,42 +202,69 @@ export default function App() {
         const layerId = dataset === 'NISAR' ? 'nisar' : 'sentinel1';
         const source = acqLayerRef.current?.[dataset];
         if (result.status === 'rejected') {
-          if (result.reason?.name !== 'AbortError') messages.push({ warn: true, text: `${dataset}: ${result.reason?.message || 'Search failed'}` });
-          acquisitionRecordsRef.current[dataset] = [];
-          if (source) renderRecords(source, []);
+          if (result.reason?.name !== 'AbortError') {
+            // Both missions fail the same way when the catalogue is unreachable: say it once, in full.
+            const unreachable = result.reason?.code === 'ASF_UNREACHABLE';
+            if (!unreachable || !messages.some((m) => m.unreachable)) messages.push({ warn: true, full: unreachable, unreachable, text: unreachable ? result.reason.message : `${dataset}: ${result.reason?.message || 'Search failed'}` });
+          }
+          fetchedRef.current[dataset] = { records: [], truncated: false, sig: null };
           return;
         }
         const r = result.value;
         retrievedAt = r.retrievedAt;
         totalRecords += r.records.length;
-        acquisitionRecordsRef.current[dataset] = r.records;
-        if (source) { renderRecords(source, r.records); source.setMode(acqDisplayModeRef.current); }
+        fetchedRef.current[dataset] = { records: r.records, truncated: r.truncated, sig: null };
         platform.registry.setStatus(layerId, 'integrated');
         platform.registry.setVisible(layerId, r.records.length > 0);
-        messages.push({ text: `${dataset}: ${r.records.length} acquisitions in selected timeline window${r.total != null ? ` · ${r.total.toLocaleString()} catalogue matches` : ''}${r.truncated ? ' · result cap reached' : ''}.` });
+        const fmt = (ms) => new Date(ms).toISOString().slice(0, 10);
+        messages.push({ text: `${dataset}: ${r.records.length} acquisitions loaded for ${fmt(span.start)} to ${fmt(span.end)}${r.total != null ? ` · ${r.total.toLocaleString()} catalogue matches` : ''}${r.truncated ? ' · result cap reached' : ''}.` });
         const rejected = Object.values(r.rejected || {}).reduce((a, b) => a + b, 0);
         if (rejected) messages.push({ warn: true, text: `${dataset}: ${rejected} records skipped because required footprint or metadata fields were missing.` });
       });
+      if (options.auto && windowModeRef.current) messages.push({ warn: true, text: 'The whole timeline holds more scenes than the result cap, so scenes load for the selected window only. Pause on a date to refresh.' });
+      if (pinnedRef.current) messages.push({ text: 'Showing the dates from the search form. Move the timeline to follow it again.' });
+      renderWindowRef.current?.();
       if (!totalRecords && !messages.some(m => m.warn)) messages.push({ warn: true, text: 'No acquisitions found in this timeline window and map area.' });
-      setAcqStatus({ loading: false, error: totalRecords ? null : 'No usable acquisition footprints were found for this timeline window.', messages, retrievedAt });
+      setAcqStatus({ loading: false, error: totalRecords ? null : (messages.some((m) => m.unreachable) ? 'The ASF catalogue could not be reached.' : 'No usable acquisition footprints were found for this timeline window.'), messages, retrievedAt });
     } catch (e) {
       if (e?.name !== 'AbortError') setAcqStatus({ loading: false, error: e.message || 'ASF search failed', messages: [], retrievedAt: null });
     }
   };
   loadAcquisitionsRef.current = loadAcquisitions;
 
+  // Draw only the loaded scenes that fall in the timeline window; repaint only when that set changed.
+  const renderWindow = () => {
+    const win = platform.timeline.getWindow();
+    let shown = 0, loaded = 0;
+    for (const dataset of Object.keys(fetchedRef.current)) {
+      const f = fetchedRef.current[dataset];
+      const subset = pinnedRef.current ? f.records : inWindow(f.records, win);
+      loaded += f.records.length; shown += subset.length;
+      acquisitionRecordsRef.current[dataset] = subset; // hover and click use exactly what is drawn
+      const sig = windowSignature(subset);
+      const source = acqLayerRef.current?.[dataset];
+      if (source && f.sig !== sig) { f.sig = sig; renderRecords(source, subset); source.setMode(acqDisplayModeRef.current); }
+    }
+    setAcqVisible((v) => (v.shown === shown && v.loaded === loaded && v.pinned === pinnedRef.current ? v : { shown, loaded, pinned: pinnedRef.current }));
+  };
+  const renderWindowRef = useRef(null); renderWindowRef.current = renderWindow;
+
   useEffect(() => {
     if (!ready) return undefined;
     const timeline = platform.timeline;
     let timer = null;
     const scheduleSearch = (state) => {
+      // Cheap and immediate: redraw the scenes inside the window (at most 4 times a second while playing).
+      const now = performance.now();
+      if (!state.playing || now - lastPaintRef.current > 250) { lastPaintRef.current = now; renderWindowRef.current?.(); }
       if (timer) clearTimeout(timer);
-      // During animation playback, wait until the user pauses; this avoids a network
-      // request on every animation frame. Scrubbing/date changes search after a short settle.
+      // Network only when the window leaves what is already loaded; never while the animation runs.
       if (state.playing) return;
       timer = setTimeout(() => {
-        const window = timeline.getWindow();
-        loadAcquisitionsRef.current?.({ startMs: window.start, endMs: window.end, auto: true });
+        const win = timeline.getWindow();
+        const covered = !pinnedRef.current && acqSpanRef.current && spanCovers(acqSpanRef.current, win, state.start);
+        if (covered) return;
+        loadAcquisitionsRef.current?.({ auto: true });
       }, 450);
     };
     const unsubscribe = timeline.subscribe(scheduleSearch);
@@ -253,7 +306,7 @@ export default function App() {
 
   const clearAcquisitions = () => {
     if (acqLayerRef.current) Object.values(acqLayerRef.current).forEach((source) => renderRecords(source, []));
-    acquisitionRecordsRef.current = { 'SENTINEL-1': [], NISAR: [] };
+    acquisitionRecordsRef.current = { 'SENTINEL-1': [], NISAR: [] }; fetchedRef.current = {}; acqSpanRef.current = null; lastTimelineSearchRef.current = ''; pinnedRef.current = false; setAcqVisible({ shown: 0, loaded: 0, pinned: false });
     setHoverInfo(null); hoverKeyRef.current = '';
     platform.registry.setVisible('sentinel1', false); platform.registry.setVisible('nisar', false);
     platform.registry.setStatus('sentinel1', 'future'); platform.registry.setStatus('nisar', 'future');
@@ -295,8 +348,9 @@ export default function App() {
           <button className={acqDisplayMode === 'footprints' ? 'active' : ''} onClick={() => setAcqDisplayMode('footprints')}>Footprints</button>
           <button className={acqDisplayMode === 'density' ? 'active' : ''} onClick={() => setAcqDisplayMode('density')}>Density</button>
         </div>
-        <Legend platform={platform} />
-        <TimeSeriesPanel engineRef={engineRef} ready={ready} open={panels.right} onOpenChange={(v) => setPanel('right', v)} />
+        <Legend platform={platform} acqMode={acqDisplayMode} />
+        <TimeSeriesPanel engineRef={engineRef} ready={ready} open={panels.right} onOpenChange={(v) => setPanel('right', v)} onImages={setRadarImages} />
+        <ImageInfo images={radarImages} />
         <div ref={popupEl} className="popup-anchor"><InspectorPopup info={info} onClose={closePopup} /></div>
         {hazardHover && <HazardHoverCard hover={hazardHover} style={{ left: Math.min(hazardHover.x + 18, (mapEl.current?.clientWidth || 900) - 340), top: Math.max(12, Math.min(hazardHover.y + 14, (mapEl.current?.clientHeight || 600) - 250)) }} />}
         {hoverInfo && !hazardHover && <div className="acq-hover-card" style={{ left: Math.min(hoverInfo.x + 16, (mapEl.current?.clientWidth || 900) - 330), top: Math.max(12, Math.min(hoverInfo.y + 14, (mapEl.current?.clientHeight || 600) - 230)) }}>
@@ -316,7 +370,7 @@ export default function App() {
       </main>
       <div className="tl-wrap" aria-hidden={!panels.bottom} inert={!panels.bottom}>
         <button className="tl-hide" onClick={() => setPanel('bottom', false)} aria-label="Hide timeline" title="Hide timeline">▾</button>
-        <TimelineBar timeline={platform.timeline} stepKey={stepKey} setStepKey={setStepKey} speedKey={speedKey} setSpeedKey={setSpeedKey} acquisitionStatus={acqStatus} />
+        <TimelineBar timeline={platform.timeline} stepKey={stepKey} setStepKey={setStepKey} speedKey={speedKey} setSpeedKey={setSpeedKey} acquisitionStatus={{ ...acqStatus, visible: acqVisible }} />
       </div>
     </div>
   );

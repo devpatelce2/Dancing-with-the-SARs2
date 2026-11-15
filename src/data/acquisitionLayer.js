@@ -1,5 +1,6 @@
 import * as Cesium from 'cesium'
 import { DATASETS } from './asf.js'
+import { COVERAGE_CLASSES, coverageClass } from './acquisitionWindow.js'
 
 export const ACQ_PREFIX = 'acq:'
 const WORLD_RECT = Cesium.Rectangle.fromDegrees(-180, -90, 180, 90)
@@ -100,41 +101,31 @@ function drawFootprints(canvas, records, color) {
   }
 }
 
-function drawDensity(canvas, maskCanvas, records, color) {
-  const mask = maskCanvas.getContext('2d')
+/**
+ * Density = how many acquisitions cover each point (a catalogue fact), drawn in four stepped classes.
+ * Each footprint adds a fixed amount to a hidden count canvas, which is then read back pixel by pixel.
+ * Nothing is blurred or smoothed, so a pixel's shade never suggests radar brightness.
+ */
+const STEP = 8 // red-channel units per overlapping footprint: counts up to 31 stay exact
+function drawDensity(canvas, countCanvas, records, color) {
+  const cc = countCanvas.getContext('2d', { willReadFrequently: true })
+  cc.clearRect(0, 0, WIDTH, HEIGHT)
+  cc.globalCompositeOperation = 'lighter'
+  cc.fillStyle = `rgb(${STEP},0,0)`
+  for (const record of records) if (record.ring?.length >= 4) drawWrappedPolygon(cc, record.ring, () => cc.fill())
+  cc.globalCompositeOperation = 'source-over'
+  const src = cc.getImageData(0, 0, WIDTH, HEIGHT)
   const out = canvas.getContext('2d')
-  mask.clearRect(0, 0, WIDTH, HEIGHT)
-  out.clearRect(0, 0, WIDTH, HEIGHT)
-
-  // Build a transparent observation mask. Additive compositing makes genuinely
-  // overlapping acquisitions brighter without drawing a full-world colour tile.
-  mask.globalCompositeOperation = 'lighter'
-  mask.fillStyle = 'rgba(255,255,255,0.34)'
-  for (const record of records) {
-    if (record.ring?.length >= 4) drawWrappedPolygon(mask, record.ring, () => mask.fill())
+  const img = out.createImageData(WIDTH, HEIGHT)
+  const n = Number.parseInt(color.replace('#', ''), 16)
+  const rgb = [(n >> 16) & 255, (n >> 8) & 255, n & 255]
+  const alphaByClass = new Map(COVERAGE_CLASSES.map((c) => [c, Math.round(c.alpha * 255)]))
+  for (let i = 0; i < src.data.length; i += 4) {
+    if (src.data[i + 3] === 0) continue
+    const cls = coverageClass(Math.max(1, Math.round(src.data[i] / STEP)))
+    img.data[i] = rgb[0]; img.data[i + 1] = rgb[1]; img.data[i + 2] = rgb[2]; img.data[i + 3] = alphaByClass.get(cls)
   }
-  mask.globalCompositeOperation = 'source-over'
-
-  // Blur only the mask, then tint it. Pixels outside footprints remain fully transparent,
-  // so the world-sized Cesium rectangle has no visible rectangular background or border.
-  const glow = document.createElement('canvas')
-  glow.width = WIDTH; glow.height = HEIGHT
-  const glowCtx = glow.getContext('2d')
-  glowCtx.filter = 'blur(16px)'
-  glowCtx.drawImage(maskCanvas, 0, 0)
-  glowCtx.filter = 'none'
-  glowCtx.globalCompositeOperation = 'source-in'
-  glowCtx.fillStyle = color
-  glowCtx.fillRect(0, 0, WIDTH, HEIGHT)
-  glowCtx.globalCompositeOperation = 'source-over'
-
-  out.drawImage(glow, 0, 0)
-  // Add a brighter, still feathered interior so density remains visible at normal zoom.
-  out.globalCompositeOperation = 'lighter'
-  out.globalAlpha = 0.58
-  out.drawImage(maskCanvas, 0, 0)
-  out.globalAlpha = 1
-  out.globalCompositeOperation = 'source-over'
+  out.putImageData(img, 0, 0)
 }
 
 export function renderRecords(ds, records) {

@@ -1,3 +1,4 @@
+import { DATA_BASE } from './baseUrl.js'
 // Data contract for processed flood sites (written by pipeline/, read by the frontend).
 //   public/data/sites.json                 -> { schemaVersion, sites: [{ id, name, metaUrl }] }
 //   public/data/<site_id>/meta.json        -> validated by validateMeta()
@@ -52,7 +53,7 @@ export function validateMeta(m) {
 }
 
 /** Load sites.json + every meta.json. Invalid sites are reported, never rendered. */
-export async function loadSites({ base = '/data', fetchImpl = fetch, signal } = {}) {
+export async function loadSites({ base = DATA_BASE, fetchImpl = fetch, signal } = {}) {
   let idx
   try {
     const r = await fetchImpl(`${base}/sites.json`, { signal })

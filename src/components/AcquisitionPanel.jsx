@@ -11,7 +11,7 @@ export default function AcquisitionPanel({ form, setForm, status, onLoad, onClea
   return (
     <section className="acq-panel">
       <div className="section-heading"><span>LIVE SAR CATALOG · ASF DAAC</span><span aria-hidden="true">◉</span></div>
-      <p className="acq-help">Search real Sentinel-1 and NISAR catalogue metadata. Coverage glows show acquisition density; hover for scene details. These are not radar pixel intensity values.</p>
+      <p className="acq-help">Search real Sentinel-1 and NISAR catalogue metadata. Footprints and the Density view show where and when satellites looked: density counts overlapping scenes. They are catalogue records, not radar brightness. Hover for scene details.</p>
 
       <div className="acq-row">
         {Object.entries(DATASETS).map(([key, d]) => (
@@ -63,12 +63,12 @@ export default function AcquisitionPanel({ form, setForm, status, onLoad, onClea
       </div>
 
       <label className="layer-toggle acq-toggle">
-        <div className="layer-copy"><strong>Show observation intensity</strong><small>Soft coverage glow · hover for details</small></div>
+        <div className="layer-copy"><strong>Show acquisition footprints</strong><small>Catalogue coverage, not radar brightness</small></div>
         <input type="checkbox" checked={showReal} onChange={(e) => setShowReal(e.target.checked)} />
       </label>
 
       {status.error && <p className="error-text">⚠ {status.error}</p>}
-      {status.messages.map((m, i) => <p key={i} className={`acq-msg ${m.warn ? 'warn' : ''}`}>{m.text}</p>)}
+      {status.messages.map((m, i) => <p key={i} className={`acq-msg ${m.warn ? 'warn' : ''}${m.full ? ' full' : ''}`}>{m.text}</p>)}
       {status.retrievedAt && <p className="muted small">Retrieved {new Date(status.retrievedAt).toUTCString()} · UTC</p>}
     </section>
   )

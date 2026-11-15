@@ -28,8 +28,8 @@ export default function TimelineBar({ timeline, stepKey, setStepKey, speedKey, s
         <input type="time" value={timeStr(s.time)} onChange={setClock} aria-label="Time (UTC)" />
         <span className="utc">UTC</span>
         <button className="ghost" onClick={() => timeline.setTime(Date.now())} title="Jump to now">Now</button>
-        <span className={`timeline-search-status ${acquisitionStatus?.loading ? 'searching' : ''}`} title="Acquisitions automatically follow the selected timeline window">
-          <i />{acquisitionStatus?.loading ? 'SEARCHING ASF' : 'AUTO ASF SYNC'}
+        <span className={`timeline-search-status ${acquisitionStatus?.loading ? 'searching' : ''}`} title={acquisitionStatus?.visible?.pinned ? 'Showing the dates from the search form. Move the timeline to follow it again.' : 'Footprints on the map are the scenes whose acquisition start falls inside the selected timeline window'}>
+          <i />{acquisitionStatus?.loading ? 'SEARCHING ASF' : acquisitionStatus?.visible?.loaded ? (acquisitionStatus.visible.pinned ? `SEARCH RANGE · ${acquisitionStatus.visible.shown} SCENES` : `${acquisitionStatus.visible.shown} IN WINDOW · ${acquisitionStatus.visible.loaded} LOADED`) : 'AUTO ASF SYNC'}
         </span>
       </div>
       <label className="sel">Step

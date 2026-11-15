@@ -6,8 +6,11 @@
 
 const ENV_BASE = typeof import.meta !== 'undefined' ? import.meta.env?.VITE_ASF_BASE : undefined
 
-// In dev, '/asf-api' is proxied to https://api.daac.asf.alaska.edu by vite.config.js.
-// Set VITE_ASF_BASE=https://api.daac.asf.alaska.edu to call ASF directly (needs CORS; see README).
+// Where requests go. The browser cannot always call ASF directly, so the client tries these in order and
+// keeps the first one that answers a health check:
+//   1. VITE_ASF_BASE  - a proxy you deployed (Cloudflare Worker / Vercel). Needed on static hosts such as GitHub Pages.
+//   2. /api/asf       - same-origin proxy: Vite's dev server, or the Vercel function in api/asf.js.
+//   3. ASF itself     - works only if ASF answers the browser's CORS check from your site.
 export const ASF_BASE = ENV_BASE || '/api/asf'
 export const ASF_UPSTREAM = 'https://api.daac.asf.alaska.edu'
 const SEARCH_PATH = '/services/search/param'
@@ -70,12 +73,71 @@ async function readError(res) {
 }
 
 /** Lightweight availability check. Returns { ok, status, body } — body is whatever ASF returned. */
-export async function checkSource({ base = ASF_BASE, signal } = {}) {
-  const res = await fetch(`${base}/health`, { signal })
+export async function checkSource({ base, signal, fetchImpl = fetch } = {}) {
+  const chosen = base ?? (await resolveBase({ fetchImpl, signal })).base
+  const res = await fetchImpl(`${chosen}/health`, { signal })
   let body = null
   try { body = await res.json() } catch { /* non-JSON */ }
-  return { ok: res.ok, status: res.status, body }
+  return { ok: res.ok, status: res.status, body, base: chosen }
 }
+
+// ---------------------------------------------------------------- connectivity
+
+export function candidateBases(env = ENV_BASE) {
+  const list = []
+  if (env) list.push(String(env).replace(/\/+$/, ''))
+  list.push('/api/asf', ASF_UPSTREAM)
+  return [...new Set(list)]
+}
+
+/** One plain-language message that says what was tried and what to do, instead of a bare "HTTP 404". */
+export function explainUnreachable(attempts) {
+  const tried = attempts.map((a) => `${a.base} (${a.reason})`).join('; ')
+  const staticHost = attempts.some((a) => a.status === 404 || a.status === 405)
+  return `Could not reach the ASF catalogue. Tried: ${tried}. `
+    + (staticHost
+      ? 'This site has no server-side proxy (GitHub Pages and other static hosts cannot run one). Deploy the proxy in deploy/ (Cloudflare Worker or Vercel) and rebuild with VITE_ASF_BASE set to its URL. See README, "Deploying the catalogue proxy".'
+      : 'Check your internet connection, or deploy the proxy in deploy/ and set VITE_ASF_BASE. See README.')
+}
+
+let resolvedBase = null
+let resolving = null // in-flight check shared by simultaneous searches (Sentinel-1 and NISAR start together)
+export function resetResolvedBase() { resolvedBase = null; resolving = null }
+export function getResolvedBase() { return resolvedBase }
+
+/** Find a working base. Cached after the first success; throws an Error with `.attempts` when none works. */
+export async function resolveBase(opts = {}) {
+  const { bases = candidateBases(), signal } = opts
+  const aborted = () => { if (signal?.aborted) throw new DOMException('Aborted', 'AbortError') }
+  if (resolvedBase && bases.includes(resolvedBase)) return { base: resolvedBase, attempts: [] }
+  if (opts.bases) return probeBases(opts) // caller supplied its own list: do not share
+  // The shared check ignores any one caller's signal, so one search being cancelled cannot fail the other.
+  if (!resolving) resolving = probeBases({ ...opts, signal: undefined }).finally(() => { resolving = null })
+  const result = await resolving
+  aborted()
+  return result
+}
+
+async function probeBases({ fetchImpl = fetch, signal, bases = candidateBases(), timeoutMs = 8000 } = {}) {
+  const attempts = []
+  for (const base of bases) {
+    if (signal?.aborted) throw new DOMException('Aborted', 'AbortError')
+    try {
+      const res = await fetchImpl(`${base}/health`, { signal: AbortSignal.timeout ? AbortSignal.timeout(timeoutMs) : undefined })
+      const type = res.headers?.get?.('content-type') ?? ''
+      if (res.ok && !/text\/html/i.test(type)) { resolvedBase = base; return { base, attempts } }
+      attempts.push({ base, status: res.status, reason: res.ok ? 'answered with a web page, not the ASF API' : `HTTP ${res.status}` })
+    } catch (e) {
+      if (signal?.aborted) throw e
+      attempts.push({ base, status: 0, reason: e?.name === 'TimeoutError' ? 'timed out' : 'blocked or unreachable (CORS or network)' })
+    }
+  }
+  const err = new Error(explainUnreachable(attempts))
+  err.code = 'ASF_UNREACHABLE'; err.attempts = attempts
+  throw err
+}
+
+const isConnectivityError = (e) => e?.code === 'ASF_UNREACHABLE' || e instanceof TypeError || /HTTP (404|405|502|503|504)\b/.test(e?.message ?? '')
 
 // ---------------------------------------------------------------- normalisation
 
@@ -189,7 +251,20 @@ export function normalizeCollection(fc, ctx) {
  * Fetch acquisitions for ONE dataset. Runs a count query (best effort) plus the capped GeoJSON query so the
  * UI can say "showing 500 of 18,342" instead of silently presenting a truncated sample as complete.
  */
-export async function fetchAcquisitions(opts, { base = ASF_BASE, signal, fetchImpl = fetch } = {}) {
+export async function fetchAcquisitions(opts, { base, signal, fetchImpl = fetch } = {}) {
+  if (base) return fetchFrom(opts, { base, signal, fetchImpl }) // caller pinned a base: no fallback
+  const first = await resolveBase({ fetchImpl, signal })
+  try { return await fetchFrom(opts, { base: first.base, signal, fetchImpl }) } catch (e) {
+    if (!isConnectivityError(e) || signal?.aborted) throw e
+    resetResolvedBase() // it answered the health check but failed the search: try the others
+    const others = candidateBases().filter((b) => b !== first.base)
+    if (!others.length) throw e
+    const next = await resolveBase({ fetchImpl, signal, bases: others })
+    return fetchFrom(opts, { base: next.base, signal, fetchImpl })
+  }
+}
+
+async function fetchFrom(opts, { base, signal, fetchImpl }) {
   const geoParams = buildQuery({ ...opts, output: 'geojson' })
   const countParams = buildQuery({ ...opts, output: 'count' })
   const queryUrl = `${ASF_UPSTREAM}${SEARCH_PATH}?${geoParams.toString()}`

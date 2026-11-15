@@ -1,3 +1,5 @@
+import { DATA_BASE } from '../lib/baseUrl.js'
+import { imageMeta } from '../lib/imageMeta.js'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { loadTimeSeries, seriesExtent, linearScale, niceTicks, isOutlier, fmt, fmtDate, fmtSigned, defaultCompare, compareRows, daysBetween, clamp01, validationSummary } from '../lib/timeSeries.js'
 
@@ -7,7 +9,6 @@ const H = 286
 import { createDiffSource } from '../lib/diffMap.js'
 import StoryTab from './StoryTab.jsx'
 import { storyFor, CASE_STUDIES } from '../content/stories.js'
-import { DATA_BASE } from '../lib/dataBase.js'
 let overlaySeq = 0
 const diffSources = new Map() // site key -> lazy difference-map source (kept for the two most recent sites)
 
@@ -199,7 +200,7 @@ function Divider({ split, setSplit, a, b }) {
   )
 }
 
-export default function TimeSeriesPanel({ engineRef, ready = true, base = DATA_BASE, open: openProp, onOpenChange }) {
+export default function TimeSeriesPanel({ engineRef, ready = true, base = DATA_BASE, open: openProp, onOpenChange, onImages }) {
   const [state, setState] = useState({ loading: true, series: [], invalid: [], reason: null })
   const [openSelf, setOpenSelf] = useState(true)
   const [wide, setWide] = useState(false) // reading width for stories and charts
@@ -283,23 +284,27 @@ export default function TimeSeriesPanel({ engineRef, ready = true, base = DATA_B
       if (lay === 'diff') {
         const dA = diff.maps[ia], dB = diff.maps[ib]
         if (dA && dB) {
-          specs.push({ id: 'cmp-a', url: dA.url, key: `diff-${ia}`, bounds: ts.bounds, timestamp: pA.time, source: `${src}, change vs baseline`, split: 'left', sampling: 'nearest' })
-          specs.push({ id: 'cmp-b', url: dB.url, key: `diff-${ib}`, bounds: ts.bounds, timestamp: pB.time, source: `${src}, change vs baseline`, split: 'right', sampling: 'nearest' })
+          specs.push({ id: 'cmp-a', url: dA.url, key: `diff-${ia}`, bounds: ts.bounds, timestamp: pA.time, source: `${src}, change vs baseline`, meta: imageMeta(ts, pA, 'diff'), split: 'left', sampling: 'nearest' })
+          specs.push({ id: 'cmp-b', url: dB.url, key: `diff-${ib}`, bounds: ts.bounds, timestamp: pB.time, source: `${src}, change vs baseline`, meta: imageMeta(ts, pB, 'diff'), split: 'right', sampling: 'nearest' })
         }
       } else {
         const sampling = lay === 'overlay' ? 'nearest' : 'linear'
-        if (pA[lay]) specs.push({ id: 'cmp-a', url: `${cur.base}/${pA[lay]}`, bounds: ts.bounds, timestamp: pA.time, source: src, split: 'left', sampling })
-        if (pB[lay]) specs.push({ id: 'cmp-b', url: `${cur.base}/${pB[lay]}`, bounds: ts.bounds, timestamp: pB.time, source: src, split: 'right', sampling })
+        if (pA[lay]) specs.push({ id: 'cmp-a', url: `${cur.base}/${pA[lay]}`, bounds: ts.bounds, timestamp: pA.time, source: src, meta: imageMeta(ts, pA, lay), split: 'left', sampling })
+        if (pB[lay]) specs.push({ id: 'cmp-b', url: `${cur.base}/${pB[lay]}`, bounds: ts.bounds, timestamp: pB.time, source: src, meta: imageMeta(ts, pB, lay), split: 'right', sampling })
       }
     } else if (inStory) {
       const p = ts.points[fi]; const f = hasImages ? p.image : p.overlay
-      if (f) specs.push({ id: 'story', url: `${cur.base}/${f}`, bounds: ts.bounds, timestamp: p.time, source: src, sampling: hasImages ? 'linear' : 'nearest' })
+      if (f) specs.push({ id: 'story', url: `${cur.base}/${f}`, bounds: ts.bounds, timestamp: p.time, source: src, meta: imageMeta(ts, p, hasImages ? 'image' : 'overlay'), sampling: hasImages ? 'linear' : 'nearest' })
     } else if (tab === 'series' && overlayOn && sel != null) {
       const si = Math.min(sel, ts.points.length - 1); const p = ts.points[si]; const useDiff = seriesLayer === 'diff' && hasImages
-      if (useDiff && diff.maps[si]) specs.push({ id: 'ts-overlay', url: diff.maps[si].url, key: `diff-${si}`, bounds: ts.bounds, timestamp: p.time, source: `${src}, change vs baseline`, sampling: 'nearest' })
-      else if (!useDiff && p.overlay) specs.push({ id: 'ts-overlay', url: `${cur.base}/${p.overlay}`, bounds: ts.bounds, timestamp: p.time, source: src, sampling: 'nearest' })
+      if (useDiff && diff.maps[si]) specs.push({ id: 'ts-overlay', url: diff.maps[si].url, key: `diff-${si}`, bounds: ts.bounds, timestamp: p.time, source: `${src}, change vs baseline`, meta: imageMeta(ts, p, 'diff'), sampling: 'nearest' })
+      else if (!useDiff && p.overlay) specs.push({ id: 'ts-overlay', url: `${cur.base}/${p.overlay}`, bounds: ts.bounds, timestamp: p.time, source: src, meta: imageMeta(ts, p, 'overlay'), sampling: 'nearest' })
     }
   }
+  // Tell the map which radar images are showing, so each one carries its source and metadata.
+  const metaKey = specs.map((x) => x.meta?.id).filter(Boolean).join(';')
+  useEffect(() => { onImages?.(specs.filter((x) => x.meta).map((x) => x.meta)) }, [metaKey]) // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => () => onImages?.([]), []) // eslint-disable-line react-hooks/exhaustive-deps
   useOverlays(engineRef, ready, specs, specs.map((s) => `${s.id}|${s.key ?? s.url}|${s.split ?? ''}`).join(';'))
   useEffect(() => { if (ready && comparing) engineRef?.current?.rasters?.setSplitPosition(split) }, [ready, comparing, split, engineRef])
 

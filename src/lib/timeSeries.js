@@ -3,6 +3,7 @@
 //   public/data/<site_id>/timeseries.json      -> validated by validateTimeSeries()
 //   public/data/<site_id>/ts/<YYYYMMDDTHHMMSS>.png  -> per-date change-candidate overlay (bounds = timeseries.bounds)
 // Every number shown in the UI comes from timeseries.json. Nothing here invents values.
+import { DATA_BASE } from './baseUrl.js'
 import { validateBounds } from './siteData.js'
 
 const SITE_ID = /^[a-z0-9][a-z0-9_-]{0,63}$/
@@ -40,7 +41,7 @@ export function validateTimeSeries(t) {
   return { ok: errors.length === 0, errors }
 }
 
-export async function loadTimeSeries({ base = '/data', fetchImpl = fetch, signal } = {}) {
+export async function loadTimeSeries({ base = DATA_BASE, fetchImpl = fetch, signal } = {}) {
   let idx
   try {
     const r = await fetchImpl(`${base}/sites.json`, { signal })

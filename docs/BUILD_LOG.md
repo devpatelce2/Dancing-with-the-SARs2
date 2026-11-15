@@ -119,3 +119,10 @@
 - Noto displacement figures are from Japan's Earthquake Research Committee evaluation (9 Feb 2024); they are provisional, approximate, and were not measured by this app.
 - `docs/LIVE_CHECK.md` is the team's own run of `pipeline.verify_live`.
 - Checked in headless Chrome at 1440×900 and 400×800: no console errors. JS tests 80 pass; build clean.
+
+## Round: connectivity, timeline sync, attribution
+- ASF connectivity chain with health probe, fallback and plain-language error; Vercel/Cloudflare proxies; Pages workflow.
+- Timeline window, footprints and selected dates share one half-open window; density view counts overlapping acquisitions and is labelled "not radar brightness".
+- Per-image source and metadata card with tests; `pipeline.find_reference` for independent validation; deck slide on what SAR can and cannot detect.
+- Home hero uses the terrain image from the Navigation-Fixed branch (illustrative, labelled). That branch's other features were not merged.
+- Not verified here: live ASF, real proxy deployment, an actual validation score (no network).
