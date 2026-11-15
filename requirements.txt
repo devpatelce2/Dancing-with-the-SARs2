@@ -1,0 +1,13 @@
+# Backend + pipeline (Python 3.11+). On Windows, install rasterio/GDAL wheels with pip (binary wheels bundle GDAL).
+fastapi>=0.110
+uvicorn[standard]>=0.29
+requests>=2.31
+httpx>=0.27
+h5py>=3.10
+numpy>=1.26
+rasterio>=1.3.9
+shapely>=2.0
+pyproj>=3.6
+pytest>=8
+scipy>=1.11
+pillow>=10

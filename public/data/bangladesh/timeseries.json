@@ -1,0 +1,200 @@
+{
+  "schemaVersion": 1,
+  "siteId": "bangladesh",
+  "name": "Bangladesh",
+  "eventName": "Floods",
+  "country": null,
+  "mission": "NISAR",
+  "productType": "GCOV",
+  "polarization": "HHHH",
+  "frequency": "frequencyA",
+  "bounds": [
+    90.18816513059534,
+    24.372632055370133,
+    90.39852625336113,
+    24.581490598687594
+  ],
+  "processingCrs": "EPSG:32645",
+  "aoi": {
+    "type": "bbox",
+    "bboxLonLat": [
+      90.1934,
+      24.3769,
+      90.3934,
+      24.5769
+    ]
+  },
+  "track": "019",
+  "direction": "D",
+  "frame": "076",
+  "eventDate": null,
+  "synthetic": false,
+  "visualisationStretchDb": [
+    -10.503,
+    -1.087
+  ],
+  "method": {
+    "name": "per-pixel median-dB baseline; decrease candidates",
+    "thresholdDb": -3.0,
+    "speckleWindow": 3,
+    "minMappingPixels": 9,
+    "baselineScenes": 3,
+    "aoiMean": "mean of linear power, then 10*log10",
+    "areaMethod": "changed pixels x pixel area at AOI centre in equal-area EPSG:6933",
+    "masks": []
+  },
+  "baseline": {
+    "meanDb": -4.6525,
+    "stdDb": 0.0202,
+    "n": 3
+  },
+  "points": [
+    {
+      "time": "2026-07-09T12:42:52+00:00",
+      "productId": "NISAR_L2_PR_GCOV_025_019_D_076_4005_DHDH_A_20260709T124252_20260709T124317_P05023_N_P_J_001",
+      "cycle": "025",
+      "isBaseline": true,
+      "meanDb": -4.6298,
+      "medianDb": -5.1408,
+      "validCoverage": 0.93981,
+      "changedPixels": 123,
+      "changedAreaKm2": 0.78566,
+      "changedPercent": 0.1779,
+      "timeSource": "file name",
+      "overlay": "ts/20260709T124252.png",
+      "image": "ts/20260709T124252_db.png",
+      "deltaDb": 0.0227,
+      "z": 1.126
+    },
+    {
+      "time": "2026-09-07T12:42:40+00:00",
+      "productId": "NISAR_L2_PR_GCOV_030_019_D_076_2005_DHDH_M_20260907T124240_20260907T124314_P05023_N_F_J_001",
+      "cycle": "030",
+      "isBaseline": true,
+      "meanDb": -4.6594,
+      "medianDb": -4.8878,
+      "validCoverage": 0.94441,
+      "changedPixels": 51,
+      "changedAreaKm2": 0.32576,
+      "changedPercent": 0.0734,
+      "timeSource": "file name",
+      "overlay": "ts/20260907T124240.png",
+      "image": "ts/20260907T124240_db.png",
+      "deltaDb": -0.0069,
+      "z": -0.34
+    },
+    {
+      "time": "2026-10-01T12:42:50+00:00",
+      "productId": "NISAR_L2_PR_GCOV_032_019_D_076_2005_QPDH_A_20261001T124250_20261001T124314_P05023_N_P_J_001",
+      "cycle": "032",
+      "isBaseline": true,
+      "meanDb": -4.6684,
+      "medianDb": -4.8038,
+      "validCoverage": 0.94539,
+      "changedPixels": 0,
+      "changedAreaKm2": 0.0,
+      "changedPercent": 0.0,
+      "timeSource": "file name",
+      "overlay": "ts/20261001T124250.png",
+      "image": "ts/20261001T124250_db.png",
+      "deltaDb": -0.0159,
+      "z": -0.786
+    },
+    {
+      "time": "2026-10-25T12:42:40+00:00",
+      "productId": "NISAR_L2_UR_GCOV_034_019_D_076_4005_DHDH_A_20261025T124240_20261025T124315_P05036_F_F_J_001",
+      "cycle": "034",
+      "isBaseline": false,
+      "meanDb": -4.865,
+      "medianDb": -5.1893,
+      "validCoverage": 0.9375,
+      "changedPixels": 118,
+      "changedAreaKm2": 0.75373,
+      "changedPercent": 0.1711,
+      "timeSource": "file name",
+      "overlay": "ts/20261025T124240.png",
+      "image": "ts/20261025T124240_db.png",
+      "deltaDb": -0.2125,
+      "z": -10.521
+    },
+    {
+      "time": "2026-11-06T12:42:51+00:00",
+      "productId": "NISAR_L2_UR_GCOV_035_019_D_076_4005_DHDH_A_20261106T124251_20261106T124315_P05036_F_P_J_001",
+      "cycle": "035",
+      "isBaseline": false,
+      "meanDb": -4.8167,
+      "medianDb": -5.1652,
+      "validCoverage": 0.94055,
+      "changedPixels": 141,
+      "changedAreaKm2": 0.90064,
+      "changedPercent": 0.2037,
+      "timeSource": "file name",
+      "overlay": "ts/20261106T124251.png",
+      "image": "ts/20261106T124251_db.png",
+      "deltaDb": -0.1642,
+      "z": -8.129
+    }
+  ],
+  "trend": {
+    "mannKendall": {
+      "S": -8.0,
+      "z": -1.7146428199482247,
+      "p": 0.08641073297370006,
+      "tau": -0.8
+    },
+    "senSlopeDbPerDay": -0.00187,
+    "scenes": 5,
+    "note": "Needs >= 4 scenes; meaningless across an abrupt event unless interpreted with the event date."
+  },
+  "summary": {
+    "scenes": 5,
+    "firstTime": "2026-07-09T12:42:52+00:00",
+    "lastTime": "2026-11-06T12:42:51+00:00",
+    "medianGapDays": 24.0,
+    "maxGapDays": 60.0,
+    "peakChangedAreaKm2": 0.90064,
+    "peakChangedAreaTime": "2026-11-06T12:42:51+00:00",
+    "largestDropDb": -0.2125,
+    "largestDropTime": "2026-10-25T12:42:40+00:00"
+  },
+  "quality": {
+    "operatorNotes": [
+      "NISAR_L2_UR_GCOV_034_019_D_076_4005_DHDH_A_20261025T124240_20261025T124315_P05036_F_F_J_001.h5: read window rows 18500:20770, cols 26759:28845 of 33552x34200 (AOI only)",
+      "NISAR_L2_UR_GCOV_034_019_D_076_4005_DHDH_A_20261025T124240_20261025T124315_P05036_F_F_J_001.h5: 8x8 block mean of linear power over valid pixels (pixel 80 m)",
+      "NISAR_L2_UR_GCOV_034_019_D_076_4005_DHDH_A_20261025T124240_20261025T124315_P05036_F_F_J_001.h5: valid-samples mask applied (0 and 255 excluded)",
+      "NISAR_L2_UR_GCOV_034_019_D_076_4005_DHDH_A_20261025T124240_20261025T124315_P05036_F_F_J_001.h5: streamed 104 MB in 14 requests (file 6584 MB)",
+      "NISAR_L2_UR_GCOV_035_019_D_076_4005_DHDH_A_20261106T124251_20261106T124315_P05036_F_P_J_001.h5: read window rows 18500:20770, cols 26759:28845 of 33552x34200 (AOI only)",
+      "NISAR_L2_UR_GCOV_035_019_D_076_4005_DHDH_A_20261106T124251_20261106T124315_P05036_F_P_J_001.h5: 8x8 block mean of linear power over valid pixels (pixel 80 m)",
+      "NISAR_L2_UR_GCOV_035_019_D_076_4005_DHDH_A_20261106T124251_20261106T124315_P05036_F_P_J_001.h5: valid-samples mask applied (0 and 255 excluded)",
+      "NISAR_L2_UR_GCOV_035_019_D_076_4005_DHDH_A_20261106T124251_20261106T124315_P05036_F_P_J_001.h5: streamed 88 MB in 12 requests (file 4488 MB)",
+      "NISAR_L2_PR_GCOV_025_019_D_076_4005_DHDH_A_20260709T124252_20260709T124317_P05023_N_P_J_001.h5: read window rows 18500:20770, cols 26759:28845 of 33552x34200 (AOI only)",
+      "NISAR_L2_PR_GCOV_025_019_D_076_4005_DHDH_A_20260709T124252_20260709T124317_P05023_N_P_J_001.h5: 8x8 block mean of linear power over valid pixels (pixel 80 m)",
+      "NISAR_L2_PR_GCOV_025_019_D_076_4005_DHDH_A_20260709T124252_20260709T124317_P05023_N_P_J_001.h5: valid-samples mask applied (0 and 255 excluded)",
+      "NISAR_L2_PR_GCOV_025_019_D_076_4005_DHDH_A_20260709T124252_20260709T124317_P05023_N_P_J_001.h5: streamed 104 MB in 14 requests (file 4656 MB)",
+      "NISAR_L2_PR_GCOV_030_019_D_076_2005_DHDH_M_20260907T124240_20260907T124314_P05023_N_F_J_001.h5 resampled onto the first scene's grid",
+      "NISAR_L2_PR_GCOV_030_019_D_076_2005_DHDH_M_20260907T124240_20260907T124314_P05023_N_F_J_001.h5: read window rows 9249:10386, cols 13379:14423 of 16776x17100 (AOI only)",
+      "NISAR_L2_PR_GCOV_030_019_D_076_2005_DHDH_M_20260907T124240_20260907T124314_P05023_N_F_J_001.h5: 8x8 block mean of linear power over valid pixels (pixel 160 m)",
+      "NISAR_L2_PR_GCOV_030_019_D_076_2005_DHDH_M_20260907T124240_20260907T124314_P05023_N_F_J_001.h5: valid-samples mask applied (0 and 255 excluded)",
+      "NISAR_L2_PR_GCOV_030_019_D_076_2005_DHDH_M_20260907T124240_20260907T124314_P05023_N_F_J_001.h5: streamed 120 MB in 16 requests (file 1752 MB)",
+      "NISAR_L2_PR_GCOV_032_019_D_076_2005_QPDH_A_20261001T124250_20261001T124314_P05023_N_P_J_001.h5 resampled onto the first scene's grid",
+      "NISAR_L2_PR_GCOV_032_019_D_076_2005_QPDH_A_20261001T124250_20261001T124314_P05023_N_P_J_001.h5: read window rows 9249:10386, cols 13379:14423 of 16776x17100 (AOI only)",
+      "NISAR_L2_PR_GCOV_032_019_D_076_2005_QPDH_A_20261001T124250_20261001T124314_P05023_N_P_J_001.h5: 8x8 block mean of linear power over valid pixels (pixel 160 m)",
+      "NISAR_L2_PR_GCOV_032_019_D_076_2005_QPDH_A_20261001T124250_20261001T124314_P05023_N_P_J_001.h5: valid-samples mask applied (0 and 255 excluded)",
+      "NISAR_L2_PR_GCOV_032_019_D_076_2005_QPDH_A_20261001T124250_20261001T124314_P05023_N_P_J_001.h5: streamed 112 MB in 15 requests (file 5748 MB)",
+      "no event date given: first 3 scenes used as baseline"
+    ],
+    "processedAt": "2026-11-14T19:31:19.558978+00:00",
+    "unitsAttribute": "1"
+  },
+  "validation": null,
+  "limitations": [
+    "Flood CANDIDATES from a backscatter-decrease baseline; not confirmed floods and not independently validated unless meta.validation says so.",
+    "Decrease-only method: flooded vegetation (double-bounce, backscatter increase) is not detected.",
+    "Backscatter also changes with soil moisture, vegetation/crop phenology, wind roughening, harvest or tillage and snow; these can cause false alarms or omissions.",
+    "Threshold is an analyst-chosen parameter, not a universal constant; results depend on it.",
+    "Terrain effects (layover, shadow, steep slopes) can mimic or hide change; no slope mask is applied unless listed in meta.processing.masks.",
+    "Backscatter change is not ground displacement and must not be interpreted as such.",
+    "Time-series statistics describe the AOI as a whole; a mixed AOI (land, water, crops) can hide or exaggerate local change.",
+    "Trend tests need enough scenes (>= 4) and assume roughly evenly spaced acquisitions; they do not prove a physical cause."
+  ]
+}

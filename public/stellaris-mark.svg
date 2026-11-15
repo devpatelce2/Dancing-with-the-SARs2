@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Team Stellaris logo">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9fe6ff"/><stop offset="1" stop-color="#3aa8e0"/></linearGradient>
+    <linearGradient id="w" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffe29a"/><stop offset="1" stop-color="#ffb347"/></linearGradient>
+    <radialGradient id="bg" cx=".5" cy=".4" r=".8"><stop offset="0" stop-color="#14264a"/><stop offset="1" stop-color="#060c1b"/></radialGradient>
+  </defs>
+  <rect x="2" y="2" width="60" height="60" rx="16" fill="url(#bg)" stroke="#27456f" stroke-width="1.5"/>
+  <!-- orbit ring -->
+  <ellipse cx="32" cy="30" rx="23" ry="8.5" transform="rotate(-24 32 30)" fill="none" stroke="url(#g)" stroke-width="2" stroke-opacity=".85"/>
+  <!-- four-point star -->
+  <path d="M32 8 L36.2 25.8 L54 30 L36.2 34.2 L32 52 L27.8 34.2 L10 30 L27.8 25.8 Z" fill="url(#w)"/>
+  <circle cx="32" cy="30" r="2.6" fill="#fff8e1"/>
+  <!-- satellite on the ring -->
+  <circle cx="50.6" cy="21.4" r="2.6" fill="#9fe6ff"/>
+</svg>

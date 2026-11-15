@@ -1,0 +1,25 @@
+node_modules
+dist
+public/cesium
+public/data/geo/*.geojson
+data-inventory
+data-external
+.env*
+# Large SAR products are never committed. Keep them outside the repo or under data-external/ (symlink).
+*.h5
+*.SAFE
+*.zip
+
+# Python / pipeline
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+pipeline/work/
+data-raw/
+*.tif.aux.xml
+
+# secrets and local caches: never commit or share
+key.txt
+*.token
+.cache/

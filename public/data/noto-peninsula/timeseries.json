@@ -1,0 +1,187 @@
+{
+  "schemaVersion": 1,
+  "siteId": "noto-peninsula",
+  "name": "Noto Peninsula",
+  "eventName": "Earthquakes (M4.5+)",
+  "country": null,
+  "mission": "SENTINEL-1",
+  "productType": "RTC-S1 (OPERA)",
+  "band": "C",
+  "polarization": "VV",
+  "frequency": "C-band",
+  "bounds": [
+    137.04214686963965,
+    37.20683757082745,
+    137.2536987617234,
+    37.41392634282505
+  ],
+  "processingCrs": "EPSG:32653",
+  "aoi": {
+    "type": "bbox",
+    "bboxLonLat": [
+      137.0477,
+      37.2104,
+      137.2477,
+      37.4104
+    ]
+  },
+  "track": "017",
+  "direction": null,
+  "frame": null,
+  "eventDate": "2024-01-01",
+  "synthetic": false,
+  "visualisationStretchDb": [
+    -21.01,
+    -4.475
+  ],
+  "method": {
+    "name": "per-pixel median-dB baseline; decrease candidates",
+    "thresholdDb": -3.0,
+    "speckleWindow": 3,
+    "minMappingPixels": 9,
+    "baselineScenes": 3,
+    "aoiMean": "mean of linear power, then 10*log10",
+    "areaMethod": "changed pixels x pixel area at AOI centre in equal-area EPSG:6933",
+    "masks": []
+  },
+  "baseline": {
+    "meanDb": -8.5813,
+    "stdDb": 1.0088,
+    "n": 3
+  },
+  "points": [
+    {
+      "time": "2023-12-06T20:59:55+00:00",
+      "productId": "OPERA_L2_RTC-S1_T017-035219-IW1_20231206T205955Z_20231207T060621Z_S1A_30_v1.0",
+      "cycle": null,
+      "isBaseline": true,
+      "meanDb": -7.4348,
+      "medianDb": -7.9322,
+      "validCoverage": 0.98638,
+      "changedPixels": 9,
+      "changedAreaKm2": 0.0081,
+      "changedPercent": 0.002,
+      "timeSource": "file name",
+      "overlay": "ts/20231206T205955.png",
+      "image": "ts/20231206T205955_db.png",
+      "deltaDb": 1.1465,
+      "z": 1.136
+    },
+    {
+      "time": "2023-12-18T20:59:54+00:00",
+      "productId": "OPERA_L2_RTC-S1_T017-035219-IW1_20231218T205954Z_20231219T080443Z_S1A_30_v1.0",
+      "cycle": null,
+      "isBaseline": true,
+      "meanDb": -9.3331,
+      "medianDb": -9.028,
+      "validCoverage": 0.98627,
+      "changedPixels": 54128,
+      "changedAreaKm2": 48.71076,
+      "changedPercent": 12.0034,
+      "timeSource": "file name",
+      "overlay": "ts/20231218T205954.png",
+      "image": "ts/20231218T205954_db.png",
+      "deltaDb": -0.7518,
+      "z": -0.745
+    },
+    {
+      "time": "2023-12-30T20:59:53+00:00",
+      "productId": "OPERA_L2_RTC-S1_T017-035219-IW1_20231230T205953Z_20240104T190208Z_S1A_30_v1.0",
+      "cycle": null,
+      "isBaseline": true,
+      "meanDb": -8.9761,
+      "medianDb": -8.9645,
+      "validCoverage": 0.98616,
+      "changedPixels": 12449,
+      "changedAreaKm2": 11.20308,
+      "changedPercent": 2.761,
+      "timeSource": "file name",
+      "overlay": "ts/20231230T205953.png",
+      "image": "ts/20231230T205953_db.png",
+      "deltaDb": -0.3948,
+      "z": -0.391
+    },
+    {
+      "time": "2024-01-11T20:59:53+00:00",
+      "productId": "OPERA_L2_RTC-S1_T017-035219-IW1_20240111T205953Z_20240112T110257Z_S1A_30_v1.0",
+      "cycle": null,
+      "isBaseline": false,
+      "meanDb": -8.1081,
+      "medianDb": -8.4665,
+      "validCoverage": 0.98541,
+      "changedPixels": 489,
+      "changedAreaKm2": 0.44006,
+      "changedPercent": 0.1085,
+      "timeSource": "file name",
+      "overlay": "ts/20240111T205953.png",
+      "image": "ts/20240111T205953_db.png",
+      "deltaDb": 0.4732,
+      "z": 0.469
+    }
+  ],
+  "trend": {
+    "mannKendall": {
+      "S": 0.0,
+      "z": 0.0,
+      "p": 1.0,
+      "tau": 0.0
+    },
+    "senSlopeDbPerDay": 0.00552,
+    "scenes": 4,
+    "note": "Needs >= 4 scenes; meaningless across an abrupt event unless interpreted with the event date."
+  },
+  "summary": {
+    "scenes": 4,
+    "firstTime": "2023-12-06T20:59:55+00:00",
+    "lastTime": "2024-01-11T20:59:53+00:00",
+    "medianGapDays": 12.0,
+    "maxGapDays": 12.0,
+    "peakChangedAreaKm2": 48.71076,
+    "peakChangedAreaTime": "2023-12-18T20:59:54+00:00",
+    "largestDropDb": -0.7518,
+    "largestDropTime": "2023-12-18T20:59:54+00:00"
+  },
+  "quality": {
+    "operatorNotes": [
+      "OPERA_L2_RTC-S1_T017-035219-IW1_20231206T205955Z_20231207T060621Z_S1A_30_v1.0_VV.tif: OPERA_L2_RTC-S1_T017-035219-IW1_20231206T205955Z_20231207T060621Z_S1A_30_v1.0_VV.tif: 7 MB (cached in .cache\\sentinel1)",
+      "OPERA_L2_RTC-S1_T017-035219-IW1_20231206T205955Z_20231207T060621Z_S1A_30_v1.0_VV.tif: OPERA_L2_RTC-S1_T017-035219-IW1_20231206T205955Z_20231207T060621Z_S1A_30_v1.0_mask.tif: 0 MB (cached in .cache\\sentinel1)",
+      "OPERA_L2_RTC-S1_T017-035219-IW1_20231206T205955Z_20231207T060621Z_S1A_30_v1.0_VV.tif: OPERA_L2_RTC-S1_T017-035219-IW1_20231206T205955Z_20231207T042709Z_S1A_30_v1.0_VV.tif: 7 MB (cached in .cache\\sentinel1)",
+      "OPERA_L2_RTC-S1_T017-035219-IW1_20231206T205955Z_20231207T060621Z_S1A_30_v1.0_VV.tif: OPERA_L2_RTC-S1_T017-035219-IW1_20231206T205955Z_20231207T042709Z_S1A_30_v1.0_mask.tif: 0 MB (cached in .cache\\sentinel1)",
+      "OPERA_L2_RTC-S1_T017-035219-IW1_20231206T205955Z_20231207T060621Z_S1A_30_v1.0_VV.tif: OPERA_L2_RTC-S1_T017-035220-IW1_20231206T205957Z_20231207T060621Z_S1A_30_v1.0_VV.tif: 7 MB (cached in .cache\\sentinel1)",
+      "OPERA_L2_RTC-S1_T017-035219-IW1_20231206T205955Z_20231207T060621Z_S1A_30_v1.0_VV.tif: OPERA_L2_RTC-S1_T017-035220-IW1_20231206T205957Z_20231207T060621Z_S1A_30_v1.0_mask.tif: 0 MB (cached in .cache\\sentinel1)",
+      "OPERA_L2_RTC-S1_T017-035219-IW1_20231206T205955Z_20231207T060621Z_S1A_30_v1.0_VV.tif: OPERA_L2_RTC-S1_T017-035220-IW1_20231206T205957Z_20231207T042709Z_S1A_30_v1.0_VV.tif: 7 MB (cached in .cache\\sentinel1)",
+      "OPERA_L2_RTC-S1_T017-035219-IW1_20231206T205955Z_20231207T060621Z_S1A_30_v1.0_VV.tif: OPERA_L2_RTC-S1_T017-035220-IW1_20231206T205957Z_20231207T042709Z_S1A_30_v1.0_mask.tif: 0 MB (cached in .cache\\sentinel1)",
+      "OPERA_L2_RTC-S1_T017-035219-IW1_20231206T205955Z_20231207T060621Z_S1A_30_v1.0_VV.tif: mosaic of 4 burst(s); 99% of the box has valid backscatter",
+      "OPERA_L2_RTC-S1_T017-035219-IW1_20231218T205954Z_20231219T080443Z_S1A_30_v1.0_VV.tif: OPERA_L2_RTC-S1_T017-035219-IW1_20231218T205954Z_20231219T080443Z_S1A_30_v1.0_VV.tif: 7 MB (cached in .cache\\sentinel1)",
+      "OPERA_L2_RTC-S1_T017-035219-IW1_20231218T205954Z_20231219T080443Z_S1A_30_v1.0_VV.tif: OPERA_L2_RTC-S1_T017-035219-IW1_20231218T205954Z_20231219T080443Z_S1A_30_v1.0_mask.tif: 0 MB (cached in .cache\\sentinel1)",
+      "OPERA_L2_RTC-S1_T017-035219-IW1_20231218T205954Z_20231219T080443Z_S1A_30_v1.0_VV.tif: OPERA_L2_RTC-S1_T017-035220-IW1_20231218T205957Z_20231219T080443Z_S1A_30_v1.0_VV.tif: 7 MB (cached in .cache\\sentinel1)",
+      "OPERA_L2_RTC-S1_T017-035219-IW1_20231218T205954Z_20231219T080443Z_S1A_30_v1.0_VV.tif: OPERA_L2_RTC-S1_T017-035220-IW1_20231218T205957Z_20231219T080443Z_S1A_30_v1.0_mask.tif: 0 MB (cached in .cache\\sentinel1)",
+      "OPERA_L2_RTC-S1_T017-035219-IW1_20231218T205954Z_20231219T080443Z_S1A_30_v1.0_VV.tif: mosaic of 2 burst(s); 99% of the box has valid backscatter",
+      "OPERA_L2_RTC-S1_T017-035219-IW1_20231230T205953Z_20240104T190208Z_S1A_30_v1.0_VV.tif: OPERA_L2_RTC-S1_T017-035219-IW1_20231230T205953Z_20240104T190208Z_S1A_30_v1.0_VV.tif: 7 MB (cached in .cache\\sentinel1)",
+      "OPERA_L2_RTC-S1_T017-035219-IW1_20231230T205953Z_20240104T190208Z_S1A_30_v1.0_VV.tif: OPERA_L2_RTC-S1_T017-035219-IW1_20231230T205953Z_20240104T190208Z_S1A_30_v1.0_mask.tif: 0 MB (cached in .cache\\sentinel1)",
+      "OPERA_L2_RTC-S1_T017-035219-IW1_20231230T205953Z_20240104T190208Z_S1A_30_v1.0_VV.tif: OPERA_L2_RTC-S1_T017-035220-IW1_20231230T205956Z_20240104T190208Z_S1A_30_v1.0_VV.tif: 7 MB (cached in .cache\\sentinel1)",
+      "OPERA_L2_RTC-S1_T017-035219-IW1_20231230T205953Z_20240104T190208Z_S1A_30_v1.0_VV.tif: OPERA_L2_RTC-S1_T017-035220-IW1_20231230T205956Z_20240104T190208Z_S1A_30_v1.0_mask.tif: 0 MB (cached in .cache\\sentinel1)",
+      "OPERA_L2_RTC-S1_T017-035219-IW1_20231230T205953Z_20240104T190208Z_S1A_30_v1.0_VV.tif: mosaic of 2 burst(s); 99% of the box has valid backscatter",
+      "OPERA_L2_RTC-S1_T017-035219-IW1_20240111T205953Z_20240112T110257Z_S1A_30_v1.0_VV.tif: OPERA_L2_RTC-S1_T017-035219-IW1_20240111T205953Z_20240112T110257Z_S1A_30_v1.0_VV.tif: 7 MB (cached in .cache\\sentinel1)",
+      "OPERA_L2_RTC-S1_T017-035219-IW1_20240111T205953Z_20240112T110257Z_S1A_30_v1.0_VV.tif: OPERA_L2_RTC-S1_T017-035219-IW1_20240111T205953Z_20240112T110257Z_S1A_30_v1.0_mask.tif: 0 MB (cached in .cache\\sentinel1)",
+      "OPERA_L2_RTC-S1_T017-035219-IW1_20240111T205953Z_20240112T110257Z_S1A_30_v1.0_VV.tif: OPERA_L2_RTC-S1_T017-035220-IW1_20240111T205955Z_20240112T110257Z_S1A_30_v1.0_VV.tif: 7 MB (cached in .cache\\sentinel1)",
+      "OPERA_L2_RTC-S1_T017-035219-IW1_20240111T205953Z_20240112T110257Z_S1A_30_v1.0_VV.tif: OPERA_L2_RTC-S1_T017-035220-IW1_20240111T205955Z_20240112T110257Z_S1A_30_v1.0_mask.tif: 0 MB (cached in .cache\\sentinel1)",
+      "OPERA_L2_RTC-S1_T017-035219-IW1_20240111T205953Z_20240112T110257Z_S1A_30_v1.0_VV.tif: mosaic of 2 burst(s); 99% of the box has valid backscatter"
+    ],
+    "processedAt": "2026-11-14T20:51:42.346863+00:00",
+    "unitsAttribute": "gamma0 linear power (OPERA RTC-S1)"
+  },
+  "validation": null,
+  "limitations": [
+    "Flood CANDIDATES from a backscatter-decrease baseline; not confirmed floods and not independently validated unless meta.validation says so.",
+    "Decrease-only method: flooded vegetation (double-bounce, backscatter increase) is not detected.",
+    "Backscatter also changes with soil moisture, vegetation/crop phenology, wind roughening, harvest or tillage and snow; these can cause false alarms or omissions.",
+    "Threshold is an analyst-chosen parameter, not a universal constant; results depend on it.",
+    "Terrain effects (layover, shadow, steep slopes) can mimic or hide change; no slope mask is applied unless listed in meta.processing.masks.",
+    "Backscatter change is not ground displacement and must not be interpreted as such.",
+    "Time-series statistics describe the AOI as a whole; a mixed AOI (land, water, crops) can hide or exaggerate local change.",
+    "Trend tests need enough scenes (>= 4) and assume roughly evenly spaced acquisitions; they do not prove a physical cause.",
+    "Sentinel-1 is C-band: its signal reflects mostly off the canopy top, so flooding under dense vegetation is much less visible than with L-band (NISAR).",
+    "Sentinel-1 data here are OPERA RTC-S1 (30 m, terrain-corrected gamma0). Where the product's mask layer was available, layover/shadow and invalid pixels were excluded; otherwise radar shadow can look like water."
+  ]
+}

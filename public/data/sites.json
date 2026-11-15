@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "sites": [
+    {
+      "id": "bangladesh",
+      "name": "Bangladesh",
+      "kind": "timeseries"
+    },
+    {
+      "id": "nepal",
+      "name": "nepal",
+      "kind": "timeseries"
+    },
+    {
+      "id": "noto-peninsula",
+      "name": "Noto Peninsula",
+      "kind": "timeseries"
+    },
+    {
+      "id": "sunamganj",
+      "name": "Sunamganj",
+      "kind": "timeseries"
+    },
+    {
+      "id": "sylhet",
+      "name": "Sylhet",
+      "kind": "timeseries"
+    }
+  ]
+}
