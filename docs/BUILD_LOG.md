@@ -112,3 +112,10 @@
 
 ## Timeline slider fix (15 Nov 2026)
 - The timeline slider had shrunk to a short stub. Cause: the slide-away handle buttons used the class `edge`, which the timeline's start/end date boxes already use, so they picked up the handle's absolute positioning. Handles are now `pedge`. Slider measured at 913 px wide on desktop and full width on phones.
+
+## Home page and story charts (15 Nov 2026)
+- New home page (`src/components/Home.jsx`) at `#/`; the map is at `#/map`. Case-study cards open their story on the map; the logo in the side panel returns home.
+- Each story has a "Published numbers" chart drawn only from its listed sources (flood calendar, earthquake displacement, wildfire size and containment, landslide profile and pixel count) and, where data is processed, an "Our radar measurements" chart drawn only from `timeseries.json`.
+- Noto displacement figures are from Japan's Earthquake Research Committee evaluation (9 Feb 2024); they are provisional, approximate, and were not measured by this app.
+- `docs/LIVE_CHECK.md` is the team's own run of `pipeline.verify_live`.
+- Checked in headless Chrome at 1440×900 and 400×800: no console errors. JS tests 80 pass; build clean.

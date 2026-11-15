@@ -64,9 +64,9 @@ export default function Sidebar({ platform, onImported, acquisition, hazardStatu
     catch (err) { setMsg({ ok: false, text: err.message }); }
   };
   return (
-    <aside className={`sidebar${open ? '' : ' closed'}`} aria-hidden={!open} inert={open ? undefined : ''}>
+    <aside className={`sidebar${open ? '' : ' closed'}`} aria-hidden={!open} inert={!open}>
       <header className="sb-head">
-        <StellarisMark size={38} />
+        <button className="sb-home" onClick={() => { window.location.hash = '#/'; }} aria-label="Back to the home page" title="Back to the home page"><StellarisMark size={38} /></button>
         <div className="sb-title"><h1>Dancing with the SARs</h1><p>Global Earth Map</p><span className="sb-team">by Team Stellaris</span></div>
         {onClose && <button className="sb-close" onClick={onClose} aria-label="Hide side panel" title="Hide side panel">‹</button>}
       </header>

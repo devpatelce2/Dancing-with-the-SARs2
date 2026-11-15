@@ -314,7 +314,7 @@ export default function App() {
         </div>}
         <div className="attribution">ASF DAAC acquisition footprints · Natural Earth · NOAA solar algorithm · CesiumJS</div>
       </main>
-      <div className="tl-wrap" aria-hidden={!panels.bottom} inert={panels.bottom ? undefined : ''}>
+      <div className="tl-wrap" aria-hidden={!panels.bottom} inert={!panels.bottom}>
         <button className="tl-hide" onClick={() => setPanel('bottom', false)} aria-label="Hide timeline" title="Hide timeline">▾</button>
         <TimelineBar timeline={platform.timeline} stepKey={stepKey} setStepKey={setStepKey} speedKey={speedKey} setSpeedKey={setSpeedKey} acquisitionStatus={acqStatus} />
       </div>

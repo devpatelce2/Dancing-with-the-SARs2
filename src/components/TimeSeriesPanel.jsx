@@ -201,6 +201,7 @@ function Divider({ split, setSplit, a, b }) {
 export default function TimeSeriesPanel({ engineRef, ready = true, base = '/data', open: openProp, onOpenChange }) {
   const [state, setState] = useState({ loading: true, series: [], invalid: [], reason: null })
   const [openSelf, setOpenSelf] = useState(true)
+  const [wide, setWide] = useState(false) // reading width for stories and charts
   const open = openProp ?? openSelf
   const setOpen = useCallback((v) => { setOpenSelf(v); onOpenChange?.(v) }, [onOpenChange])
   const [tab, setTab] = useState('series')
@@ -310,6 +311,14 @@ export default function TimeSeriesPanel({ engineRef, ready = true, base = '/data
     const e = engineRef?.current; const b = c.story.bounds
     if (e && b) { const stageW = e.scene.canvas.clientWidth; const pw = panelEl.current?.offsetWidth ?? 0; e.flyToBounds(b, { insetRightPx: pw && pw < stageW - 280 ? pw + 24 : 0 }) }
   }
+  // A case study asked for from the home page (or any other part of the app): open it once the site list has loaded.
+  const [wantCase, setWantCase] = useState(() => (typeof window !== 'undefined' ? window.__sarPendingCase ?? null : null))
+  useEffect(() => { const h = (e) => setWantCase(e.detail?.key ?? null); window.addEventListener('sar-open-case', h); return () => window.removeEventListener('sar-open-case', h) }, [])
+  useEffect(() => {
+    if (!wantCase || state.loading) return
+    const c = CASE_STUDIES.find((k) => k.key === wantCase); window.__sarPendingCase = null; setWantCase(null)
+    if (c) { setOpen(true); openCase(c) }
+  }, [wantCase, state.loading]) // eslint-disable-line react-hooks/exhaustive-deps
   const pickDot = (i, shift) => {
     if (tab === 'story') { setPlaying(false); setFrame(i); return }
     if (tab !== 'compare') { setSel(i); return }
@@ -328,10 +337,11 @@ export default function TimeSeriesPanel({ engineRef, ready = true, base = '/data
   return (
     <>
       {comparing && pA && pB && !same && <Divider split={split} setSplit={setSplit} a={pA} b={pB} />}
-      <section className="ts-panel" ref={panelEl} aria-label="Surface change">
+      <section className={`ts-panel${wide ? ' wide' : ''}`} ref={panelEl} aria-label="Surface change">
         <header>
           <b>◔ Surface change · {ts ? (ts.mission === 'SENTINEL-1' ? 'Sentinel-1' : 'NISAR') : 'NISAR / Sentinel-1'}</b>
-          <button className="ts-x" onClick={() => setOpen(false)} aria-label="Hide this panel" title="Hide this panel">›</button>
+          <span className="ts-hbtns"><button className="ts-x" onClick={() => setWide((v) => !v)} aria-pressed={wide} aria-label={wide ? 'Make the panel narrower' : 'Make the panel wider'} title={wide ? 'Narrower panel' : 'Wider panel for reading'}>{wide ? '⇥' : '⇤'}</button>
+          <button className="ts-x" onClick={() => setOpen(false)} aria-label="Hide this panel" title="Hide this panel">›</button></span>
         </header>
         {state.loading && <p className="ts-empty">Loading processed data…</p>}
         {!state.loading && <nav className="cs-row" aria-label="Case studies">

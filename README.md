@@ -105,5 +105,3 @@ Things to know:
 2. `python -m pipeline.verify_live --write docs/LIVE_CHECK.md` and read every FAIL line.
 3. `npx vercel --prod` (the `api/` folder holds the ASF proxy function). Open the printed URL.
 4. On the live URL check: the map loads with satellite imagery; the site list shows every site; Time series, Compare dates and Story open; the 3D button works; ticking Earthquakes loads events; "Search live acquisitions" returns footprints.
-#   D a n c i n g - w i t h - t h e - S A R s 2  
- 

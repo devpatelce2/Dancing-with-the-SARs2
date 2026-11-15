@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react'
 import { fmtDate, storyFindings } from '../lib/timeSeries.js'
+import { StoryViz, OurData, hasViz } from './StoryViz.jsx'
 
 const SAT = <g className="st-sat" transform="translate(34 14)"><rect x="-7" y="-5" width="14" height="10" rx="2" /><rect x="-24" y="-3" width="14" height="6" /><rect x="10" y="-3" width="14" height="6" /></g>
 const FIGS = {
@@ -90,6 +91,8 @@ export default function StoryTab({ story, ts, frame, setFrame, playing, setPlayi
         <section key={c.id} className="st-ch" style={{ '--i': k }}>
           <h4><span className="st-num">{k + 1}</span>{c.heading}</h4>
           {FIGS[c.figure] && <PulseFigure kind={c.figure} />}
+          {hasViz(c.figure) && <StoryViz kind={c.figure} viz={c.viz} sources={story.sources} />}
+          {c.figure === 'findings' && found && <OurData ts={ts} frame={frame} onPick={jump} />}
           {c.figure === 'findings' && found && <>
             {found.sentences.map((t, i) => <p key={i}>{t}</p>)}
             <div className="st-jump">
