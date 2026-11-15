@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { StellarisMark } from '../ui/TeamLogo.jsx'
 import { CASE_STUDIES } from '../content/stories.js'
+import { DATA_BASE } from '../lib/dataBase.js'
 
 // Landing page. Everything here is either navigation, a description of what the app does, or a fact already
 // shown (with its source) inside the matching story. Whether a case study has processed radar data is read
@@ -22,7 +23,7 @@ const SOURCES = [['NISAR', 'NASA and ISRO · L-band radar'], ['Sentinel-1', 'ESA
 
 export default function Home({ onEnter }) {
   const root = useRef(null); const [sites, setSites] = useState(null)
-  useEffect(() => { let live = true; fetch('/data/sites.json').then((r) => (r.ok ? r.json() : null)).then((j) => { if (live) setSites(new Set((j?.sites ?? []).map((s) => s.id))) }).catch(() => { if (live) setSites(new Set()) }); return () => { live = false } }, [])
+  useEffect(() => { let live = true; fetch(`${DATA_BASE}/sites.json`).then((r) => (r.ok ? r.json() : null)).then((j) => { if (live) setSites(new Set((j?.sites ?? []).map((s) => s.id))) }).catch(() => { if (live) setSites(new Set()) }); return () => { live = false } }, [])
   useEffect(() => { // sections rise in as they are scrolled to
     const el = root.current; if (!el) return undefined; const items = [...el.querySelectorAll('.hm-rv')]
     if (!('IntersectionObserver' in window)) { items.forEach((i) => i.classList.add('in')); return undefined }

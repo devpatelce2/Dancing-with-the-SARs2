@@ -7,6 +7,7 @@ const H = 286
 import { createDiffSource } from '../lib/diffMap.js'
 import StoryTab from './StoryTab.jsx'
 import { storyFor, CASE_STUDIES } from '../content/stories.js'
+import { DATA_BASE } from '../lib/dataBase.js'
 let overlaySeq = 0
 const diffSources = new Map() // site key -> lazy difference-map source (kept for the two most recent sites)
 
@@ -198,7 +199,7 @@ function Divider({ split, setSplit, a, b }) {
   )
 }
 
-export default function TimeSeriesPanel({ engineRef, ready = true, base = '/data', open: openProp, onOpenChange }) {
+export default function TimeSeriesPanel({ engineRef, ready = true, base = DATA_BASE, open: openProp, onOpenChange }) {
   const [state, setState] = useState({ loading: true, series: [], invalid: [], reason: null })
   const [openSelf, setOpenSelf] = useState(true)
   const [wide, setWide] = useState(false) // reading width for stories and charts
